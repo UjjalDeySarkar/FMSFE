@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { SearchFilterBar } from "@/components/projects/SearchFilterBar";
 import { DocumentCard } from "@/components/projects/DocumentCard";
@@ -59,6 +59,7 @@ interface DocumentType {
 }
 
 export default function ProjectDetailPage() {
+  const router = useRouter();
   // Get the project ID from the URL
   const params = useParams();
   const searchParams = useSearchParams();
@@ -86,7 +87,8 @@ export default function ProjectDetailPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   // Store tag IDs as strings in selectedTags
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedFinancialYear, setSelectedFinancialYear] = useState<string>("");
+  const [selectedFinancialYear, setSelectedFinancialYear] =
+    useState<string>("");
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
 
   // Fetch project data from API
@@ -180,19 +182,19 @@ export default function ProjectDetailPage() {
 
       // Build URL with query parameters using URLSearchParams
       const queryParams = new URLSearchParams();
-      
+
       // Add project ID
       queryParams.append("project", projectId);
-      
+
       // Add search parameter if search term exists
       if (searchTerm.trim()) {
         queryParams.append("search", searchTerm.trim());
       }
-      
+
       // Add tag filtering - updated to handle multiple tag parameters
       if (selectedTags.length > 0) {
         // Instead of joining with commas, add each tag as a separate parameter
-        selectedTags.forEach(tagId => {
+        selectedTags.forEach((tagId) => {
           queryParams.append("tags", tagId);
         });
       }
@@ -204,11 +206,11 @@ export default function ProjectDetailPage() {
         if (match) {
           const startYear = parseInt(match[1]);
           const endYear = parseInt(`20${match[2]}`); // Convert "24" to 2024
-          
+
           // In India, financial year starts from April 1st and ends on March 31st
           const startDate = `${startYear}-04-01`;
           const endDate = `${endYear}-03-31`;
-          
+
           queryParams.append("created_min", startDate);
           queryParams.append("created_max", endDate);
         }
@@ -217,14 +219,18 @@ export default function ProjectDetailPage() {
       // Add document type filtering if implemented
       if (selectedDocumentType) {
         // Find the document type ID that matches the selected name
-        const documentType = documentTypes.find(type => type.name === selectedDocumentType);
+        const documentType = documentTypes.find(
+          (type) => type.name === selectedDocumentType
+        );
         if (documentType) {
           queryParams.append("document_type", documentType.id.toString());
         }
       }
 
       // Construct the final URL
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/documents/?${queryParams.toString()}`;
+      const url = `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/documents/?${queryParams.toString()}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -286,13 +292,16 @@ export default function ProjectDetailPage() {
         throw new Error("Authentication token not found");
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/document-type/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/document-type/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -360,7 +369,7 @@ export default function ProjectDetailPage() {
   // Convert document types from API to format needed for dropdown - include both name and id
   const documentTypeOptions = documentTypes.map((type) => ({
     id: type.id.toString(),
-    name: type.name
+    name: type.name,
   }));
 
   // Filter documents based on search term and selected filters
@@ -373,9 +382,7 @@ export default function ProjectDetailPage() {
     // Tag filter - check if document has any of the selected tags
     const matchesTags =
       selectedTags.length === 0 ||
-      doc.tags.some((tagId) => 
-        selectedTags.includes(tagId.toString())
-      );
+      doc.tags.some((tagId) => selectedTags.includes(tagId.toString()));
 
     // Financial Year filter
     // We'll skip financial year filtering since API documents don't have this field directly
@@ -411,7 +418,7 @@ export default function ProjectDetailPage() {
         onNewDocument={() => setIsNewDocModalOpen(true)}
         allTags={tags}
         financialYears={financialYears}
-        documentTypes={documentTypeOptions.map(type => type.name)}
+        documentTypes={documentTypeOptions.map((type) => type.name)}
       />
 
       {/* Project Documents Grid */}
@@ -500,7 +507,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 {/* Action menu */}
-                <div className="absolute top-3 right-3">
+                {/* <div className="absolute top-3 right-3">
                   <button
                     className="p-1.5 rounded-full bg-white bg-opacity-80 text-gray-500 hover:text-gray-700 hover:bg-opacity-100 relative"
                     onClick={(e) => {
@@ -524,7 +531,7 @@ export default function ProjectDetailPage() {
                       Download
                     </button>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Document Info */}
@@ -552,8 +559,8 @@ export default function ProjectDetailPage() {
                       className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
                       title="View"
                       onClick={() => {
-                        // Handle view action
-                        console.log("View document", doc.id);
+                        // Navigate to document view page
+                        router.push(`/dashboard/documents/${doc.id}`);
                       }}
                     >
                       <Eye className="w-4 h-4" />
@@ -580,9 +587,9 @@ export default function ProjectDetailPage() {
       <NewDocumentModal
         isOpen={isNewDocModalOpen}
         onClose={() => setIsNewDocModalOpen(false)}
-        allTags={tags.map(tag => tag.name)}
+        allTags={tags.map((tag) => tag.name)}
         correspondents={correspondents}
-        documentTypes={documentTypeOptions.map(type => type.name)}
+        documentTypes={documentTypeOptions.map((type) => type.name)}
         projectId={projectId} // Pass project ID for API association
         onDocumentUploaded={() => {
           // Refresh the document list when a new document is uploaded
