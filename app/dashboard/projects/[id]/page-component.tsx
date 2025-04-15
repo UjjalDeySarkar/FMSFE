@@ -6,10 +6,11 @@ import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { SearchFilterBar } from "@/components/projects/SearchFilterBar";
 // import { DocumentCard } from "@/components/projects/DocumentCard";
 import { NewDocumentModal } from "@/components/projects/NewDocumentModal";
-import { Download, Edit, Eye, FileText, MoreVertical } from "lucide-react";
+import { Calendar, Download, Edit, Eye, FileText, MoreVertical } from "lucide-react";
 import Cookies from "js-cookie";
 import { ViewToggle } from "@/components/ui/ViewToggle";
 import { DocumentListItem } from "@/components/projects/DocumentListItem";
+import { DocumentGridItem } from "@/components/projects/DocumentGridItem";
 
 // Helper function to determine financial year from date
 function getFinancialYearFromDate(date: Date): string {
@@ -432,6 +433,30 @@ export default function ProjectDetailPage() {
           <ViewToggle view={viewMode} onChange={setViewMode} />
         </div>
       </div>
+
+      {/* Document count and sorting options */}
+      {!isLoadingDocuments && filteredDocuments.length > 0 && (
+        <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
+          <div>
+            {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
+          </div>
+          <div className="flex items-center">
+            <span className="mr-2">Sort by:</span>
+            <select 
+              className="bg-white border border-gray-200 rounded-md px-2 py-1 text-sm"
+              onChange={(e) => {
+                // Implement sorting logic here
+                console.log("Sort by:", e.target.value);
+              }}
+            >
+              <option value="date_desc">Date (newest)</option>
+              <option value="date_asc">Date (oldest)</option>
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Project Documents - Grid or List View based on viewMode */}
       {viewMode === "grid" ? (

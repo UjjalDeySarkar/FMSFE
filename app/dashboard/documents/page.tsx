@@ -23,7 +23,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this
 import { ViewToggle } from "@/components/ui/ViewToggle";
 import { DocumentListItem } from "@/components/projects/DocumentListItem";
-import { Grid, List } from "lucide-react";
+import { DocumentGridItem } from "@/components/projects/DocumentGridItem";
+// import { Calendar, Grid, List, Tag, Upload } from "lucide-react";
 
 // Helper function to process base64 string to data URL
 function getImageUrlFromBase64(
@@ -723,90 +724,61 @@ export default function Documents() {
             ))}
         </div>
       ) : documents.length > 0 ? (
-        viewMode === "grid" ? (
-          // Grid View
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {documents.map((doc) => (
-              <div
-                key={doc.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group cursor-pointer"
-                onClick={() => handleViewDocument(doc.id)}
+        <div>
+          {/* View count and sorting options */}
+          <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
+            <div>
+              {documents.length} document{documents.length !== 1 ? 's' : ''}
+            </div>
+            <div className="flex items-center">
+              <span className="mr-2">Sort by:</span>
+              <select 
+                className="bg-white border border-gray-200 rounded-md px-2 py-1 text-sm"
+                onChange={(e) => {
+                  // Implement sorting logic here
+                  console.log("Sort by:", e.target.value);
+                }}
               >
-                {/* Thumbnail */}
-                <div className="relative aspect-square bg-gray-100">
-                  {doc.thumbnail_str ? (
-                    <img
-                      src={getImageUrlFromBase64(doc.thumbnail_str) || ""}
-                      alt={doc.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                        target.parentElement!.innerHTML =
-                          '<div class="w-full h-full flex items-center justify-center"><svg class="w-16 h-16 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <FileText className="w-16 h-16 text-gray-300" />
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                    {doc.tags && doc.tags.length > 0 ? (
-                      doc.tags.slice(0, 3).map((tagId, index) => {
-                        const tag = tags.find((t) => t.id === tagId);
-                        return (
-                          <span
-                            key={index}
-                            className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
-                          >
-                            {tag ? tag.name : `Tag ${tagId}`}
-                          </span>
-                        );
-                      })
-                    ) : (
-                      <span className="inline-block bg-gray-500 bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
-                        No tags
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Document Info */}
-                <div className="p-4">
-                  <h3 className="text-gray-800 font-medium line-clamp-1">
-                    {doc.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm mt-1">
-                    {doc.created_date && (
-                      <span>
-                        {new Date(doc.created_date).toISOString().split("T")[0]}
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-            ))}
+                <option value="date_desc">Date (newest)</option>
+                <option value="date_asc">Date (oldest)</option>
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+              </select>
+            </div>
           </div>
-        ) : (
-          // List View
-          <div className="flex flex-col gap-3">
-            {documents.map((doc) => (
-              <DocumentListItem
-                key={doc.id}
-                document={doc}
-                tags={tags}
-                onView={handleViewDocument}
-              />
-            ))}
-          </div>
-        )
+          
+          {viewMode === "grid" ? (
+            // Enhanced Grid View
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {documents.map((doc) => (
+                <DocumentGridItem 
+                  key={doc.id} 
+                  document={doc} 
+                  tags={tags} 
+                  onView={handleViewDocument} 
+                />
+              ))}
+            </div>
+          ) : (
+            // Enhanced List View
+            <div className="flex flex-col gap-3">
+              {documents.map((doc) => (
+                <DocumentListItem 
+                  key={doc.id} 
+                  document={doc} 
+                  tags={tags} 
+                  onView={handleViewDocument} 
+                />
+              ))}
+            </div>
+          )}
+        </div>
       ) : (
-        // No documents found
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <FileText className="h-16 w-16 text-gray-300 mb-4" />
+        // No documents found - enhanced empty state
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-gray-50 rounded-xl border border-gray-200 border-dashed">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <FileText className="h-8 w-8 text-gray-400" />
+          </div>
           <h3 className="text-xl font-medium text-gray-700">
             No documents found
           </h3>
@@ -817,7 +789,7 @@ export default function Documents() {
           </p>
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span>Upload Document</span>
