@@ -73,7 +73,7 @@ export default function Documents() {
   const handleViewDocument = (documentId: number) => {
     router.push(`/dashboard/documents/${documentId}`);
   };
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   // Add interface for tag type
   interface Tag {
     id: number;
@@ -728,11 +728,11 @@ export default function Documents() {
           {/* View count and sorting options */}
           <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
             <div>
-              {documents.length} document{documents.length !== 1 ? 's' : ''}
+              {documents.length} document{documents.length !== 1 ? "s" : ""}
             </div>
             <div className="flex items-center">
               <span className="mr-2">Sort by:</span>
-              <select 
+              <select
                 className="bg-white border border-gray-200 rounded-md px-2 py-1 text-sm"
                 onChange={(e) => {
                   // Implement sorting logic here
@@ -746,16 +746,16 @@ export default function Documents() {
               </select>
             </div>
           </div>
-          
+
           {viewMode === "grid" ? (
             // Enhanced Grid View
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {documents.map((doc) => (
-                <DocumentGridItem 
-                  key={doc.id} 
-                  document={doc} 
-                  tags={tags} 
-                  onView={handleViewDocument} 
+                <DocumentGridItem
+                  key={doc.id}
+                  document={doc}
+                  tags={tags}
+                  onView={handleViewDocument}
                 />
               ))}
             </div>
@@ -763,11 +763,11 @@ export default function Documents() {
             // Enhanced List View
             <div className="flex flex-col gap-3">
               {documents.map((doc) => (
-                <DocumentListItem 
-                  key={doc.id} 
-                  document={doc} 
-                  tags={tags} 
-                  onView={handleViewDocument} 
+                <DocumentListItem
+                  key={doc.id}
+                  document={doc}
+                  tags={tags}
+                  onView={handleViewDocument}
                 />
               ))}
             </div>

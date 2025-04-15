@@ -479,121 +479,38 @@ export default function ProjectDetailPage() {
               ))
           ) : filteredDocuments.length > 0 ? (
             filteredDocuments.map((doc) => (
-              <div
+              <DocumentGridItem
                 key={doc.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group"
-              >
-                {/* Thumbnail with hover overlay */}
-                <div className="relative aspect-square bg-gray-100">
-                  {doc.thumbnail_str ? (
-                    <>
-                      <div className="relative w-full h-full">
-                        <img
-                          src={getImageUrlFromBase64(doc.thumbnail_str) || ""}
-                          alt={doc.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.log(
-                              "Image failed to load for document:",
-                              doc.id
-                            );
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = "none";
-                            const fallbackEl = document.getElementById(
-                              `fallback-${doc.id}`
-                            );
-                            if (fallbackEl) {
-                              fallbackEl.style.display = "flex";
-                            }
-                          }}
-                        />
-                        <div
-                          id={`fallback-${doc.id}`}
-                          className="absolute inset-0 w-full h-full items-center justify-center"
-                          style={{ display: "none" }}
-                        >
-                          <FileText className="w-16 h-16 text-gray-300" />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <FileText className="w-16 h-16 text-gray-300" />
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                    {doc.tags && doc.tags.length > 0 ? (
-                      doc.tags.slice(0, 3).map((tagId, index) => {
-                        // Find the tag object that matches the ID
-                        const tag = tags.find((t) => t.id === tagId);
-                        return (
-                          <span
-                            key={index}
-                            className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
-                          >
-                            {tag ? tag.name : `Tag ${tagId}`}
-                          </span>
-                        );
-                      })
-                    ) : (
-                      <span className="inline-block bg-gray-500 bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
-                        No tags
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Document Info */}
-                <div className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-gray-800 font-medium line-clamp-1">
-                        {doc.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm mt-1">
-                        {doc.created_date && (
-                          <span>
-                            {
-                              new Date(doc.created_date)
-                                .toISOString()
-                                .split("T")[0]
-                            }
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    {/* View button */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                        title="View"
-                        onClick={() => {
-                          router.push(`/dashboard/documents/${doc.id}`);
-                        }}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                document={doc}
+                tags={tags}
+                onView={(id) => router.push(`/dashboard/documents/${id}`)}
+              />
             ))
           ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
-              <FileText className="h-12 w-12 text-gray-300 mb-3" />
-              <h3 className="text-lg font-medium text-gray-700">
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center bg-gray-50 rounded-xl border border-gray-200 border-dashed">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <FileText className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-700">
                 No documents found
               </h3>
-              <p className="text-gray-500 mt-1">
-                Upload documents to this project to get started
+              <p className="text-gray-500 mt-2 max-w-md">
+                {searchTerm || selectedTags.length > 0 || selectedFinancialYear || selectedDocumentType
+                  ? "Try adjusting your search filters"
+                  : "Upload documents to this project to get started"}
               </p>
+              <button
+                onClick={() => setIsNewDocModalOpen(true)}
+                className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Add Document</span>
+              </button>
             </div>
           )}
         </div>
       ) : (
-        // List view
+        // List view remains the same
         <div className="flex flex-col gap-3">
           {isLoadingDocuments ? (
             // Loading state for list view
