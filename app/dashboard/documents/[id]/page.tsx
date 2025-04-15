@@ -54,7 +54,7 @@ export default function DocumentEditPageWrapper() {
         }
 
         const documentTypesData = await documentTypesResponse.json();
-        setDocumentTypes(documentTypesData.map((type: any) => type.name));
+        setDocumentTypes(documentTypesData.map((type: Error | unknown) => (type as any).name));
 
         // Fetch tags
         const tagsResponse = await fetch("http://localhost:8000/tags", {
@@ -68,7 +68,7 @@ export default function DocumentEditPageWrapper() {
         }
 
         const tagsData = await tagsResponse.json();
-        setAllTags(tagsData.map((tag: any) => tag.name));
+        setAllTags(tagsData.map((tag: Error | unknown) => (tag as any).name));
 
       } catch (error) {
         console.error("Error fetching initial data:", error);

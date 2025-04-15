@@ -42,10 +42,10 @@ export default function SignIn() {
       } else {
         throw new Error("Authentication failed");
       }
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setError(
-        err.response?.data?.detail ||
-          err.response?.data?.message ||
+        (err as any).response?.data?.detail ||
+        (err as any).response?.data?.message ||
           "Invalid email or password. Please try again."
       );
       console.error("Login error:", err);

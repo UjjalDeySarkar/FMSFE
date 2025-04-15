@@ -31,7 +31,12 @@ export default function ForgotPassword() {
         }
       );
       router.push("/otp-verification");
-    } catch (err) {
+    // Remove or use the 'err' variable on line 34
+    // Change from:
+    // } catch (err) {
+    // To:
+    } catch (_) {
+      // Your error handling code
       setError("Failed to send reset email. Please try again.");
     } finally {
       setLoading(false);

@@ -15,7 +15,7 @@ export default function Activate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // if (!token.trim()) {
     //   setError("Please enter your activation token");
     //   return;
@@ -28,21 +28,21 @@ export default function Activate() {
       // Make API request to backend
       await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/accounts/activate/${token}`,
-        {},
+        {}
       );
-      
+
       setSuccess(true);
-      
+
       // Redirect to signin page after successful activation
       setTimeout(() => {
         router.push("/signin");
       }, 3000);
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Activation error:", err);
       setError(
-        err.response?.data?.message || 
-        err.response?.data?.error || 
-        "Account activation failed. Please check your token and try again."
+        (err as any).response?.data?.message ||
+          (err as any).response?.data?.error ||
+          "Account activation failed. Please check your token and try again."
       );
     } finally {
       setLoading(false);
@@ -74,8 +74,12 @@ export default function Activate() {
         {/* Right Section */}
         <div className="w-1/2 p-12 bg-gradient-to-br from-blue-100 to-white">
           <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">Activate Account</h2>
-            <p className="text-gray-500 text-sm mb-8">Enter your activation token to complete registration</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">
+              Activate Account
+            </h2>
+            <p className="text-gray-500 text-sm mb-8">
+              Enter your activation token to complete registration
+            </p>
 
             {error && (
               <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
@@ -85,7 +89,8 @@ export default function Activate() {
 
             {success && (
               <div className="mb-6 p-3 bg-green-50 border border-green-200 text-green-600 rounded-md text-sm">
-                Your account has been successfully activated! Redirecting to sign in page...
+                Your account has been successfully activated! Redirecting to
+                sign in page...
               </div>
             )}
 
@@ -105,7 +110,7 @@ export default function Activate() {
                   />
                 </div>
 
-                <button 
+                <button
                   type="submit"
                   className="w-full bg-blue-600 text-white p-3 rounded-md font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                   disabled={loading}

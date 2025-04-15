@@ -9,11 +9,9 @@ import {
   Search,
   X,
   ChevronDown,
-  CalendarIcon,
   Upload,
-  Plus,
 } from "lucide-react";
-import { format, isWithinInterval, isSameDay } from "date-fns";
+import { isWithinInterval, isSameDay } from "date-fns";
 import { DateRange } from "react-day-picker";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -22,7 +20,6 @@ import "@/styles/calendar-override.css";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
 } from "@/components/ui/popover";
 import { MoreVertical } from "lucide-react";
 import Cookies from "js-cookie";
@@ -68,7 +65,6 @@ export default function Documents() {
   // Add state for upload modal
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedDocType, setSelectedDocType] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
@@ -168,21 +164,6 @@ export default function Documents() {
       console.error("Failed to fetch document types:", error);
     }
   };
-
-  // Helper function to determine financial year from date
-  function getFinancialYearFromDate(date: Date): string {
-    const month = date.getMonth();
-    const year = date.getFullYear();
-
-    // In India, financial year is from April to March
-    if (month < 3) {
-      // January to March
-      return `AY - ${year - 1}-${year.toString().slice(-2)}`;
-    } else {
-      // April to December
-      return `AY - ${year}-${(year + 1).toString().slice(-2)}`;
-    }
-  }
 
   // Generate financial years from 1900 to current year
   const generateFinancialYears = () => {

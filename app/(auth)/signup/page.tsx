@@ -52,11 +52,11 @@ export default function SignUp() {
 
       // Redirect to signin page after successful registration
       router.push("/signin");
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Signup error:", err);
       setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        (err as any).response?.data?.message ||
+        (err as any).response?.data?.error ||
           "Registration failed. Please try again."
       );
     } finally {
