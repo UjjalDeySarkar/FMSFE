@@ -8,17 +8,17 @@ interface DocumentListItemProps {
     title: string;
     created_date: string;
     tags: number[];
+    thumbnail_str?: string;
   };
   tags: {
     id: number;
     name: string;
     color: string;
   }[];
+  onView: (id: number) => void;
 }
 
-export function DocumentListItem({ document, tags }: DocumentListItemProps) {
-  const router = useRouter();
-  
+export function DocumentListItem({ document, tags, onView }: DocumentListItemProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all">
       <div className="flex justify-between items-center">
@@ -64,7 +64,7 @@ export function DocumentListItem({ document, tags }: DocumentListItemProps) {
           <button
             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
             title="View"
-            onClick={() => router.push(`/dashboard/documents/${document.id}`)}
+            onClick={() => onView(document.id)}
           >
             <Eye className="w-4 h-4" />
           </button>

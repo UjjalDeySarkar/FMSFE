@@ -590,7 +590,12 @@ export default function ProjectDetailPage() {
               ))
           ) : filteredDocuments.length > 0 ? (
             filteredDocuments.map((doc) => (
-              <DocumentListItem key={doc.id} document={doc} tags={tags} />
+              <DocumentListItem
+                key={doc.id}
+                document={doc}
+                tags={tags}
+                onView={() => router.push(`/dashboard/documents/${doc.id}`)}
+              />
             ))
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-center">

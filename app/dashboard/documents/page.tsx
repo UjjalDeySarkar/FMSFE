@@ -17,13 +17,13 @@ import { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import "@/styles/calendar-override.css";
-import {
-  Popover,
-  PopoverContent,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 import { MoreVertical } from "lucide-react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this
+import { ViewToggle } from "@/components/ui/ViewToggle";
+import { DocumentListItem } from "@/components/projects/DocumentListItem";
+import { Grid, List } from "lucide-react";
 
 // Helper function to process base64 string to data URL
 function getImageUrlFromBase64(
@@ -72,7 +72,7 @@ export default function Documents() {
   const handleViewDocument = (documentId: number) => {
     router.push(`/dashboard/documents/${documentId}`);
   };
-
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   // Add interface for tag type
   interface Tag {
     id: number;
@@ -699,11 +699,15 @@ export default function Documents() {
             </div>
           )}
         </div>
+        <div className="flex items-center gap-2">
+          <ViewToggle view={viewMode} onChange={setViewMode} />
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {isLoading ? (
-          // Loading state
-          Array(5)
+
+      {isLoading ? (
+        // Loading state
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array(8)
             .fill(0)
             .map((_, index) => (
               <div
@@ -716,84 +720,32 @@ export default function Documents() {
                   <div className="h-3 bg-gray-100 rounded animate-pulse w-1/2"></div>
                 </div>
               </div>
-            ))
-        ) : documents.length > 0 ? (
-          documents
-            .filter((doc) => {
-              // Filter by search term
-              const matchesSearch = doc.title
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase());
-
-              // Filter by selected tags
-              const matchesTags =
-                selectedTags.length === 0 ||
-                doc.tags.some((tagId) =>
-                  selectedTags.includes(tagId.toString())
-                );
-
-              // Filter by date range
-              const matchesDate =
-                !dateRange?.from ||
-                !dateRange?.to ||
-                isWithinInterval(new Date(doc.created_date), {
-                  start: dateRange.from,
-                  end: dateRange.to,
-                }) ||
-                isSameDay(new Date(doc.created_date), dateRange.from) ||
-                isSameDay(new Date(doc.created_date), dateRange.to);
-
-              return matchesSearch && matchesTags && matchesDate;
-            })
-            .map((doc) => (
+            ))}
+        </div>
+      ) : documents.length > 0 ? (
+        viewMode === "grid" ? (
+          // Grid View
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group"
+                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group cursor-pointer"
+                onClick={() => handleViewDocument(doc.id)}
               >
-                {/* Thumbnail with hover overlay */}
+                {/* Thumbnail */}
                 <div className="relative aspect-square bg-gray-100">
                   {doc.thumbnail_str ? (
-                    <>
-                      <div className="relative w-full h-full">
-                        <img
-                          src={getImageUrlFromBase64(doc.thumbnail_str) || ""}
-                          alt={doc.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.log(
-                              "Image failed to load for document:",
-                              doc.id
-                            );
-                            // Try direct display of the fallback instead of DOM manipulation
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = "none";
-                            // Get the fallback element by id
-                            const fallbackEl = document.getElementById(
-                              `fallback-${doc.id}`
-                            );
-                            if (fallbackEl) {
-                              fallbackEl.style.display = "flex";
-                            }
-                          }}
-                        />
-                        <div
-                          id={`fallback-${doc.id}`}
-                          className="absolute inset-0 w-full h-full items-center justify-center"
-                          style={{ display: "none" }}
-                        >
-                          <FileText className="w-16 h-16 text-gray-300" />
-                        </div>
-                      </div>
-                    </>
-                  ) : doc.thumbnail ? (
-                    <>
-                      <img
-                        src={doc.thumbnail}
-                        alt={doc.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                    </>
+                    <img
+                      src={getImageUrlFromBase64(doc.thumbnail_str) || ""}
+                      alt={doc.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.innerHTML =
+                          '<div class="w-full h-full flex items-center justify-center"><svg class="w-16 h-16 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>';
+                      }}
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <FileText className="w-16 h-16 text-gray-300" />
@@ -802,120 +754,76 @@ export default function Documents() {
 
                   {/* Tags */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                    {doc.tags.map((tagId, index) => {
-                      // Find the tag object that matches the ID
-                      const tag = tags.find((t) => t.id === tagId);
-                      return (
-                        <span
-                          key={index}
-                          className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
-                          // style={{ backgroundColor: tag?.color || '#dbeafe', color: '#1e40af' }}
-                        >
-                          {tag ? tag.name : `Tag ${tagId}`}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  {/* Action menu */}
-                  <div className="absolute top-3 right-3">
-                    {/* <button
-                      className="p-1.5 rounded-full bg-white bg-opacity-80 text-gray-500 hover:text-gray-700 hover:bg-opacity-100 relative"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveDropdown(
-                          activeDropdown === doc.id ? null : doc.id
+                    {doc.tags && doc.tags.length > 0 ? (
+                      doc.tags.slice(0, 3).map((tagId, index) => {
+                        const tag = tags.find((t) => t.id === tagId);
+                        return (
+                          <span
+                            key={index}
+                            className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
+                          >
+                            {tag ? tag.name : `Tag ${tagId}`}
+                          </span>
                         );
-                      }}
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button> */}
-
-                    {activeDropdown === doc.id && (
-                      <div className="absolute right-0 top-8 w-36 bg-white rounded-md shadow-lg z-10 border border-gray-200 py-1">
-                        <button
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle edit action
-                            console.log("Edit document", doc.id);
-                          }}
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </button>
-                        <button
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle download action
-                            console.log("Download document", doc.id);
-                          }}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </button>
-                      </div>
+                      })
+                    ) : (
+                      <span className="inline-block bg-gray-500 bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
+                        No tags
+                      </span>
                     )}
                   </div>
                 </div>
 
                 {/* Document Info */}
                 <div className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-gray-800 font-medium line-clamp-1">
-                        {doc.title.length > 20
-                          ? `${doc.title.slice(0, 20)}...`
-                          : doc.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm mt-1">
-                        {doc.created_date}
-                      </p>
-                    </div>
-                    {/* Replace the download button with view button */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                        title="View"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewDocument(doc.id);
-                        }}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Progress bar (optional) - show only if page_count is available */}
-                  {doc.page_count && (
-                    <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
-                        <div
-                          className="bg-blue-600 h-1.5 rounded-full"
-                          style={{ width: "75%" }} // Replace with actual progress
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <h3 className="text-gray-800 font-medium line-clamp-1">
+                    {doc.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-1">
+                    {doc.created_date && (
+                      <span>
+                        {new Date(doc.created_date).toISOString().split("T")[0]}
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
-            ))
-        ) : (
-          <div className="col-span-full text-center py-10">
-            <div className="flex flex-col items-center justify-center">
-              <FileText className="h-12 w-12 text-gray-300 mb-3" />
-              <h3 className="text-lg font-medium text-gray-700">
-                No documents found
-              </h3>
-              <p className="text-gray-500 mt-1">
-                Try adjusting your search or filters
-              </p>
-            </div>
+            ))}
           </div>
-        )}
-      </div>
+        ) : (
+          // List View
+          <div className="flex flex-col gap-3">
+            {documents.map((doc) => (
+              <DocumentListItem
+                key={doc.id}
+                document={doc}
+                tags={tags}
+                onView={handleViewDocument}
+              />
+            ))}
+          </div>
+        )
+      ) : (
+        // No documents found
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <FileText className="h-16 w-16 text-gray-300 mb-4" />
+          <h3 className="text-xl font-medium text-gray-700">
+            No documents found
+          </h3>
+          <p className="text-gray-500 mt-2 max-w-md">
+            {searchTerm || selectedTags.length > 0 || selectedFinancialYear
+              ? "Try adjusting your search filters"
+              : "Upload your first document to get started"}
+          </p>
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Upload Document</span>
+          </button>
+        </div>
+      )}
 
       {/* Upload Modal */}
       {isUploadModalOpen && (
