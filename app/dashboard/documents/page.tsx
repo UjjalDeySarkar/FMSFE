@@ -731,7 +731,7 @@ export default function Documents() {
               {documents.length} document{documents.length !== 1 ? "s" : ""}
             </div>
             <div className="flex items-center">
-              <span className="mr-2">Sort by:</span>
+              {/* <span className="mr-2">Sort by:</span>
               <select
                 className="bg-white border border-gray-200 rounded-md px-2 py-1 text-sm"
                 onChange={(e) => {
@@ -743,7 +743,7 @@ export default function Documents() {
                 <option value="date_asc">Date (oldest)</option>
                 <option value="name_asc">Name (A-Z)</option>
                 <option value="name_desc">Name (Z-A)</option>
-              </select>
+              </select> */}
             </div>
           </div>
 

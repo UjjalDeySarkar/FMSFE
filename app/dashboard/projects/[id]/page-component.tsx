@@ -6,7 +6,14 @@ import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { SearchFilterBar } from "@/components/projects/SearchFilterBar";
 // import { DocumentCard } from "@/components/projects/DocumentCard";
 import { NewDocumentModal } from "@/components/projects/NewDocumentModal";
-import { Calendar, Download, Edit, Eye, FileText, MoreVertical } from "lucide-react";
+import {
+  Calendar,
+  Download,
+  Edit,
+  Eye,
+  FileText,
+  MoreVertical,
+} from "lucide-react";
 import Cookies from "js-cookie";
 import { ViewToggle } from "@/components/ui/ViewToggle";
 import { DocumentListItem } from "@/components/projects/DocumentListItem";
@@ -438,10 +445,11 @@ export default function ProjectDetailPage() {
       {!isLoadingDocuments && filteredDocuments.length > 0 && (
         <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
           <div>
-            {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
+            {filteredDocuments.length} document
+            {filteredDocuments.length !== 1 ? "s" : ""}
           </div>
           <div className="flex items-center">
-            <span className="mr-2">Sort by:</span>
+            {/* <span className="mr-2">Sort by:</span>
             <select 
               className="bg-white border border-gray-200 rounded-md px-2 py-1 text-sm"
               onChange={(e) => {
@@ -453,7 +461,7 @@ export default function ProjectDetailPage() {
               <option value="date_asc">Date (oldest)</option>
               <option value="name_asc">Name (A-Z)</option>
               <option value="name_desc">Name (Z-A)</option>
-            </select>
+            </select> */}
           </div>
         </div>
       )}
@@ -495,7 +503,10 @@ export default function ProjectDetailPage() {
                 No documents found
               </h3>
               <p className="text-gray-500 mt-2 max-w-md">
-                {searchTerm || selectedTags.length > 0 || selectedFinancialYear || selectedDocumentType
+                {searchTerm ||
+                selectedTags.length > 0 ||
+                selectedFinancialYear ||
+                selectedDocumentType
                   ? "Try adjusting your search filters"
                   : "Upload documents to this project to get started"}
               </p>
