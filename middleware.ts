@@ -53,7 +53,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  return NextResponse.next()
+  // Add ngrok header to bypass browser warning for all requests
+  const response = NextResponse.next()
+  response.headers.set('ngrok-skip-browser-warning', 'true')
+  
+  return response
 }
 
 export const config = {
